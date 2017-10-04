@@ -8,9 +8,9 @@ defaults: &defaults
     csv_guessing:     false
   debug_assets: true
   mandatory_keys:     [layer_opts, sql_api, varnish_management, redis, session_domain]
-  session_domain:     '.{{ cartodb_hostname }}'
+  session_domain:     '{{ cartodb_hostname }}'
   # If activated, urls will use usernames in format //SESSION_DOMAIN/user/USERNAME and ignore subdomains if present
-  subdomainless_urls: false
+  subdomainless_urls: true
   http_port:           {{ cartodb_http_port }} # nil|integer. HTTP port to use when building urls. Leave empty to use default (80)
   https_port:          # nil|integer. HTTPS port to use when building urls. Leave empty to use default (443)
   maps_api_cdn_template: # nil|string. E.g. '{protocol}://{zone}.cartocdn/{user}' (`/api/v1/...` fragment added via code)

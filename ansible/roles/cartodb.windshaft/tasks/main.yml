@@ -13,17 +13,17 @@
 
  - name: Install npm dependencies
    npm: path={{ cartodb_windshaft_dir }}
-   become_user: "{{ ansible_ssh_user }}"
+   become_user: '{{ install_user }}'
 
  - name: Touch CartoDB Windshaft config file
    file: path="{{ cartodb_windshaft_dir }}/config/environments/{{ cartodb_environment }}.js"
          state=touch
-         owner="{{ ansible_ssh_user }}"
-         group="{{ ansible_ssh_user }}"
+         owner="{{ install_user }}"
+         group="{{ install_user }}"
 
  - name: Copy template config
    template: src={{ cartodb_environment }}.js.j2 dest={{ cartodb_windshaft_dir }}/config/environments/{{ cartodb_environment }}.js
-   become_user: "{{ ansible_ssh_user }}"
+   become_user: "{{ install_user }}"
 
  - name: Copy CartoDB Windshaft upstart job
    template: src=cartodb_windshaft.conf.j2 dest=/etc/init/cartodb_windshaft.conf

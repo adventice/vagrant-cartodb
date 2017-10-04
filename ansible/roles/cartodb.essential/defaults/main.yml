@@ -7,3 +7,6 @@ essential_packages:
   - build-essential
   - flex
   - python-software-properties
+  - gcc-4.9
+  - g++-4.9
+  - python-pip

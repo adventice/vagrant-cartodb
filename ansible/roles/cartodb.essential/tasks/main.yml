@@ -1,11 +1,23 @@
 ---
 
+ - name: Add cartodb gcc ppa
+   apt_repository: repo=ppa:cartodb/gcc state=present update_cache=yes
+
  - name: Install essential CartoDB packages
    apt: name={{ item }} state=present
    with_items: "{{ essential_packages }}"
+
+ - name: cartodb shell profile
+   copy: src=files/etc/profile.d/cartodb.sh dest=/etc/profile.d/cartodb.sh
 
  - name: Generate UTF8 encoding
    command: locale-gen en_US.UTF-8
 
  - name: Update locale to UTF8
    command: update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
+
+ - name: Clone CartoDB repo
+   git: repo=https://github.com/CartoDB/cartodb.git dest="{{ cartodb_dir }}" version="{{ cartodb_version }}"
+
+ - name: Chown cartodb to ansible_ssh_user
+   file: path={{ cartodb_dir }} state=directory recurse=yes owner={{ ansible_ssh_user }} group={{ ansible_ssh_user }}

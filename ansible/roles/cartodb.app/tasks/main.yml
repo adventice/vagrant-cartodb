@@ -1,15 +1,15 @@
 ---
 
  - name: Precompile static assets
-   command: bundle exec grunt --environment {{ cartodb_environment }}
-   become_user: "{{ ansible_ssh_user }}"
+   command: bundle exec grunt
+   become_user: "{{ install_user }}"
    args:
      chdir: "{{ cartodb_dir }}"
    when: cartodb_compile_assets
 
  - name: Ensure cartodb log dir exists
    file: path="{{ cartodb_dir }}/log" state=directory
-   become_user: "{{ ansible_ssh_user }}"
+   become_user: "{{ install_user }}"
 
  - name: Touch app_config.yml to ensure it exists
    file: path="{{ cartodb_dir }}/config/app_config.yml" state=touch
@@ -23,41 +23,41 @@
  - name: Copy database.yml template
    template: src=database.yml.j2 dest="{{ cartodb_dir }}/config/database.yml"
 
- - name: Create CartoDB database
-   command: bundle exec rake db:create
-   become_user: "{{ ansible_ssh_user }}"
-   args:
-     chdir: "{{ cartodb_dir }}"
+ #- name: Create CartoDB database
+ #  command: bundle exec rake db:create
+ #  become_user: "{{ install_user }}"
+ #  args:
+ #    chdir: "{{ cartodb_dir }}"
 
  - name: Migrate CartoDB database
    command: bundle exec rake db:migrate
-   become_user: "{{ ansible_ssh_user }}"
+   become_user: "{{ install_user }}"
    args:
      chdir: "{{ cartodb_dir }}"
 
  - name: Create a cartodb user
    command: bundle exec rake cartodb:db:create_user SUBDOMAIN="{{ cartodb_user_subdomain }}" PASSWORD="{{ cartodb_user_password }}" EMAIL="{{ cartodb_user_email }}"
-   become_user: "{{ ansible_ssh_user }}"
+   become_user: "{{ install_user }}"
    args:
      chdir: "{{ cartodb_dir }}"
 
  - name: Create a common data user
    command: bundle exec rake cartodb:db:create_user QUOTA_IN_BYTES="{{ cartodb_common_data_user_data_quota }}" SUBDOMAIN="{{ cartodb_common_data_username }}" PASSWORD="{{ cartodb_common_data_user_password }}" EMAIL="{{ cartodb_common_data_user_email }}"
-   become_user: "{{ ansible_ssh_user }}"
+   become_user: "{{ install_user }}"
    args:
      chdir: "{{ cartodb_dir }}"
    when: cartodb_common_data_local
 
  - name: Move common data user to its own schema
    command: bundle exec rake cartodb:db:move_user_to_schema['{{ cartodb_common_data_username }}']
-   become_user: "{{ ansible_ssh_user }}"
+   become_user: "{{ install_user }}"
    args:
      chdir: "{{ cartodb_dir }}"
    when: cartodb_common_data_local
 
  - name: Remove table limit for common data user
    command: bundle exec rake cartodb:db:remove_table_quota USER_NAME="{{ cartodb_common_data_username }}"
-   become_user: "{{ ansible_ssh_user }}"
+   become_user: "{{ install_user }}"
    args:
      chdir: "{{ cartodb_dir }}"
    when: cartodb_common_data_import
@@ -77,7 +77,7 @@
 
  - name: Import common data to local user
    command: bundle exec rake cartodb:common_data:import_common_data
-   become_user: "{{ ansible_ssh_user }}"
+   become_user: "{{ install_user }}"
    args:
      chdir: "{{ cartodb_dir }}"
    register: import_result
@@ -88,14 +88,14 @@
 
  - name: Clear common data for development user
    command: bundle exec rake cartodb:remotes:clear['{{ cartodb_user_subdomain }}']
-   become_user: "{{ ansible_ssh_user }}"
+   become_user: "{{ install_user }}"
    args:
      chdir: "{{ cartodb_dir }}"
    when: cartodb_common_data_import
 
  - name: Reload common data for development user
    command: bundle exec rake cartodb:remotes:reload['{{ cartodb_user_subdomain }}']
-   become_user: "{{ ansible_ssh_user }}"
+   become_user: "{{ install_user }}"
    args:
      chdir: "{{ cartodb_dir }}"
    when: cartodb_common_data_import

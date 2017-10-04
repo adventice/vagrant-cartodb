@@ -2,7 +2,7 @@
 
  - name: Add org test account
    command: bundle exec rake cartodb:db:create_test_organization['test','5']
-   become_user: "{{ ansible_ssh_user }}"
+   become_user: "{{ install_user }}"
    register: create_org_result
    failed_when: "create_org_result.stderr != '' and 'name is already taken' not in create_org_result.stderr"
    args:

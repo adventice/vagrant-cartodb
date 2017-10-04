@@ -25,7 +25,7 @@
 
  - name: Install ruby bundle
    bundler: state=present chdir="{{ cartodb_dir }}"
-   become_user: "{{ ansible_ssh_user }}"
+   become_user: "{{ install_user }}"
 
  - name: Install global node packages
    npm: name={{ item }} state=present global=yes
@@ -34,7 +34,6 @@
 
  - name: Install node packages
    npm: path={{ cartodb_dir }}
-   become_user: "{{ ansible_ssh_user }}"
 
  - name: Upgrade pip to latest version
    pip: name=pip state=latest
